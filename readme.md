@@ -123,7 +123,7 @@ This hybrid approach combines C++ performance with Python's ease of use and exte
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License.
 
 ## Acknowledgments
 
