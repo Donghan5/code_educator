@@ -39,7 +39,7 @@ cd code-educator
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/code-educator.git
+git clone git@github.com:Donghan5/code_educator.git
 cd code-educator
 
 # Install and run Ollama

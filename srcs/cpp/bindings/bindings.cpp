@@ -6,8 +6,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(codementor_core, m) {
     m.doc() = "Code Educator C++ core module";
-    
-    // CodeStructure 구조체 바인딩
+
     py::class_<codementor::CodeStructure>(m, "CodeStructure")
         .def(py::init<>())
         .def_readwrite("language", &codementor::CodeStructure::language)
@@ -18,18 +17,17 @@ PYBIND11_MODULE(codementor_core, m) {
         .def_readwrite("metadata", &codementor::CodeStructure::metadata)
         .def("__repr__",
             [](const codementor::CodeStructure &cs) {
-                return "<CodeStructure language='" + cs.language + 
-                       "' complexity=" + std::to_string(cs.complexity) + 
-                       " imports=" + std::to_string(cs.imports.size()) + 
-                       " functions=" + std::to_string(cs.functions.size()) + 
+                return "<CodeStructure language='" + cs.language +
+                       "' complexity=" + std::to_string(cs.complexity) +
+                       " imports=" + std::to_string(cs.imports.size()) +
+                       " functions=" + std::to_string(cs.functions.size()) +
                        " classes=" + std::to_string(cs.classes.size()) + ">";
             }
         );
-    
-    // CodeParser 클래스 바인딩
+
     py::class_<codementor::CodeParser>(m, "CodeParser")
         .def(py::init<>())
-        .def("parse", &codementor::CodeParser::parse, 
+        .def("parse", &codementor::CodeParser::parse,
              "Parse code and return the code structure",
              py::arg("code"))
         .def("detect_language", &codementor::CodeParser::detectLanguage,
@@ -47,7 +45,6 @@ PYBIND11_MODULE(codementor_core, m) {
         .def("extract_classes", &codementor::CodeParser::extractClasses,
              "Extract class definitions from code",
              py::arg("code"), py::arg("language"));
-    
-    // 모듈 레벨 함수
+
     m.def("version", []() { return "0.1.0"; }, "Return the version of codementor_core");
 }
