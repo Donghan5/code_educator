@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 
+namespace code_educator {
 // structure to hold code structure information
 struct CodeStructure {
     std::string language;                // Dectected language (Python, C++, JavaScript)
@@ -45,3 +46,5 @@ private:
 
     CodeStructure parseJavaScript(const std::string& code);
 };
+
+}  // namespace code_educator

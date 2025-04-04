@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+namespace code_educator {
+// structure to hold code structure information
 CodeParser::CodeParser() {
 }
 
@@ -301,3 +303,5 @@ CodeStructure CodeParser::parse(const std::string& code) {
     structure.complexity = code.length() / 100;
     return structure;
 }
+
+} // namespace code_educator

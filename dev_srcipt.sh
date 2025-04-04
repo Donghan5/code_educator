@@ -8,26 +8,26 @@ cd $PROJECT_ROOT
 # start the development environment
 start_dev() {
     echo "🚀 Starting development environment..."
-    docker-compose up -d
+    docker-compose up
     echo "✅ Development environment started!"
-    echo "💻 Connect to the development container with: docker-compose exec codementor bash"
+    echo "💻 Connect to the development container with: docker-compose exec code_educator bash"
 }
 
 # connect to the development container
 connect_dev() {
     echo "🔌 Connecting to development container..."
-    docker-compose exec codementor bash
+    docker-compose exec code_educator bash
 }
 
 # run tests
 run_tests() {
     echo "🧪 Running tests..."
-    docker-compose exec codementor pytest
+    docker-compose exec code_educator pytest
 }
 
 build() {
     echo "🔨 Building project..."
-    docker-compose exec codementor bash -c "mkdir -p build && cd build && cmake .. && make"
+    docker-compose exec code_educator bash -c "mkdir -p build && cd build && cmake .. && make"
     echo "✅ Build completed!"
 }
 
@@ -42,10 +42,10 @@ status() {
     docker-compose ps
 
     echo -e "\n🔍 Checking Ollama API accessibility..."
-    if docker-compose exec codementor curl -s --max-time 5 http://ollama:11434/api/tags >/dev/null; then
-        echo "✅ Ollama API is accessible from codementor container!"
+    if docker-compose exec code_educator curl -s --max-time 5 http://ollama:11434/api/tags >/dev/null; then
+        echo "✅ Ollama API is accessible from code_educator container!"
     else
-        echo "❌ Ollama API is NOT accessible from codementor container!"
+        echo "❌ Ollama API is NOT accessible from code_educator container!"
     fi
 
     echo -e "\n📋 Available models:"

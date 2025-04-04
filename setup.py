@@ -91,7 +91,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'codementor=python.cli:cli',
+            'code_educator=srcs.python.cli:cli',
         ],
     },
     classifiers=[

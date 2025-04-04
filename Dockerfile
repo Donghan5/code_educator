@@ -1,5 +1,6 @@
-FROM ubuntu:22.04
+FROM --platform=linux/arm64 ubuntu:22.04
 
+# First install all system packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -11,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
+# Then install Python packages in a separate RUN command
 RUN pip3 install --no-cache-dir \
     pybind11 \
     pytest \
@@ -25,5 +27,5 @@ WORKDIR /app
 ENV OLLAMA_API_BASE=http://ollama:11434
 ENV PYTHONPATH=/app
 
-# 기본 명령어
+# Default command
 CMD ["bash"]

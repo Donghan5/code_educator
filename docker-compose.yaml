@@ -1,7 +1,8 @@
 version: '3'
 
 services:
-  codementor:
+  code_educator:
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,7 +16,7 @@ services:
     tty: true
     stdin_open: true
     networks:
-      - codementor_network
+      - code_educator_network
 
   ollama:
     image: ollama/ollama:latest
@@ -24,10 +25,10 @@ services:
     ports:
       - "11434:11434"  # Ollama API port
     networks:
-      - codementor_network
+      - code_educator_network
 
 networks:
-  codementor_network:
+  code_educator_network:
     driver: bridge
 
 volumes:
