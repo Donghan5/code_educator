@@ -25,8 +25,8 @@ def ask(question, model, stream):
             click.echo(click.style("Can't connect to Ollama API. Please check it.", fg='red'))
             sys.exit(1)
 
-        click.echo(click.style(f"질문: ", fg='green') + question)
-        click.echo(click.style("응답: ", fg='green'))
+        click.echo(click.style(f"Request: ", fg='green') + question)
+        click.echo(click.style("Response: ", fg='green'))
 
         if stream:
             # Streaming mode

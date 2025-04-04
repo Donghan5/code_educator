@@ -1,20 +1,16 @@
 #include "CodeParser.hpp"
+#include <regex>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
+#include <string>
+#include <unordered_map>
 
 CodeParser::CodeParser() {
 }
 
 CodeParser::~CodeParser() {
 }
-
-/*
-	 * detectLanguage
- * Detects the programming language of the given code snippet.
- * Currently supports Python, C++, and JavaScript.
-*/
 
 std::string CodeParser::detectLanguage(const std::string& code) {
 
@@ -46,31 +42,25 @@ std::string CodeParser::detectLanguage(const std::string& code) {
 
 int CodeParser::calculateComplexity(const std::string& code, const std::string& language) {
     int complexity = 0;
+
     // default complexity based on lines of code
     complexity += code.length() / 100;
 
+    // control structures complexity
+    std::regex if_regex("if\\s*\\(|if\\s+");
+    std::regex for_regex("for\\s*\\(|for\\s+");
+    std::regex while_regex("while\\s*\\(|while\\s+");
+    std::regex switch_regex("switch\\s*\\(");
+    std::regex try_regex("try\\s*\\{|try:");
 
-	std::vector<std::pair<std::string, int>> keywords = {
-		{"if", 1},
-		{"for", 2},
-		{"while", 2},
-		{"switch", 3},
-		{"try", 1},
-	};
-
-	std::unordered_map<std::string, int> pattern_counts;
     // search for control structures
-    std::istringstream stream(code);
-	std::string line;
-	int max_indent = 0;
-	int current_indent = 0;
-
-	while (std::getline(stream, line)) {
-		size_t indent = line.find_first_not_of(" \t");
-		if (indent != std::string::npos) {
-			current_indent = indent;
-			max_indent = std::max(max_indent, current_indent);
-		}
+    std::string::const_iterator searchStart(code.cbegin());
+    std::string::const_iterator searchEnd(code.cend());
+    std::regex_iterator<std::string::const_iterator> if_it(searchStart, searchEnd, if_regex);
+    std::regex_iterator<std::string::const_iterator> for_it(searchStart, searchEnd, for_regex);
+    std::regex_iterator<std::string::const_iterator> while_it(searchStart, searchEnd, while_regex);
+    std::regex_iterator<std::string::const_iterator> switch_it(searchStart, searchEnd, switch_regex);
+    std::regex_iterator<std::string::const_iterator> try_it(searchStart, searchEnd, try_regex);
 
     std::regex_iterator<std::string::const_iterator> end;
 
@@ -87,7 +77,7 @@ int CodeParser::calculateComplexity(const std::string& code, const std::string& 
     std::istringstream stream(code);
     std::string line;
     while (std::getline(stream, line)) {
-        // 라인의 앞 공백 수 계산
+        // skip empty lines
         size_t indent = line.find_first_not_of(" \t");
         if (indent != std::string::npos) {
             current_indent = indent;
@@ -108,8 +98,8 @@ std::vector<std::string> CodeParser::extractImports(const std::string& code, con
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, import_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, import_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -117,13 +107,13 @@ std::vector<std::string> CodeParser::extractImports(const std::string& code, con
         }
     }
     else if (language == "cpp") {
-        // C++ include 구문 찾기
+        // C++ include
         std::regex include_regex("#include\\s*[<\"]([\\w\\./]+)[>\"]");
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, include_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, include_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -131,13 +121,13 @@ std::vector<std::string> CodeParser::extractImports(const std::string& code, con
         }
     }
     else if (language == "javascript") {
-        // JavaScript import 구문 찾기
+        // JavaScript import
         std::regex import_regex("(import|require)\\s*[\\({]?\\s*['\"]([\\w\\./]+)['\"]");
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, import_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, import_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -152,13 +142,13 @@ std::vector<std::string> CodeParser::extractFunctions(const std::string& code, c
     std::vector<std::string> functions;
 
     if (language == "python") {
-        // Python 함수 정의 찾기
+        // Find Python function definitions
         std::regex func_regex("def\\s+([\\w_]+)\\s*\\(");
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -168,13 +158,12 @@ std::vector<std::string> CodeParser::extractFunctions(const std::string& code, c
         }
     }
     else if (language == "cpp") {
-        // C++ 함수 정의 찾기 (단순화된 버전)
         std::regex func_regex("(\\w+)\\s+(\\w+)\\s*\\([^)]*\\)\\s*\\{");
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -190,8 +179,8 @@ std::vector<std::string> CodeParser::extractFunctions(const std::string& code, c
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, func_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -215,8 +204,8 @@ std::vector<std::string> CodeParser::extractClasses(const std::string& code, con
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -231,8 +220,8 @@ std::vector<std::string> CodeParser::extractClasses(const std::string& code, con
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -242,13 +231,13 @@ std::vector<std::string> CodeParser::extractClasses(const std::string& code, con
         }
     }
     else if (language == "javascript") {
-        // JavaScript 클래스 정의 찾기
+        // JavaScript definition search
         std::regex class_regex("class\\s+(\\w+)");
 
         std::string::const_iterator searchStart(code.cbegin());
         std::string::const_iterator searchEnd(code.cend());
-        auto words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
-        auto words_end = std::sregex_iterator();
+        std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, class_regex);
+        std::sregex_iterator words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
@@ -295,10 +284,8 @@ CodeStructure CodeParser::parseJavaScript(const std::string& code) {
 }
 
 CodeStructure CodeParser::parse(const std::string& code) {
-    // 언어 감지
-    std::string language = detectLanguage(code);
+    std::string language = detectLanguage(code);  // dectect language
 
-    // 감지된 언어에 따라 파싱 함수 호출
     if (language == "python") {
         return parsePython(code);
     }
