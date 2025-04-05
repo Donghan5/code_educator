@@ -66,7 +66,7 @@ class CMakeBuild(build_ext):
 
 # 버전 정보 가져오기
 def get_version():
-    with open('src/python/__init__.py', 'r') as f:
+    with open('srcs/python/__init__.py', 'r') as f:
         for line in f:
             if line.startswith('__version__'):
                 return line.split('=')[1].strip().strip("'\"")
@@ -74,16 +74,16 @@ def get_version():
 
 
 setup(
-    name="code_educator",
+    name="code-educator",
     version=get_version(),
     author="Donghan Kim",
     author_email="donghan.kim02@gmail.com",
     description="AI-powered programming learning assistant",
     long_description=open("README.md").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
-    ext_modules=[CMakeExtension('codementor_core')],
+    packages=find_packages('srcs'),
+    package_dir={'': 'srcs'},
+    ext_modules=[CMakeExtension('code_educator_core')],
     cmdclass=dict(build_ext=CMakeBuild),
     install_requires=[
         'click>=7.0',
@@ -91,7 +91,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'code_educator=srcs.python.cli:cli',
+            'code-educator=srcs.python.cli:cli',
         ],
     },
     classifiers=[

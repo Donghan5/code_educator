@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Architecture-specific flags for ARM - use more conservative settings
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
-    message(STATUS "ARM64 architecture detected, using conservative compile flags")
-    add_compile_options(-march=armv8-a -mtune=generic)
-    add_compile_options(-O0)  # Disable optimizations for debugging
-endif()
+# # Architecture-specific flags for ARM - use more conservative settings
+# if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+#     message(STATUS "ARM64 architecture detected, using conservative compile flags")
+#     add_compile_options(-march=armv8-a -mtune=generic)
+#     add_compile_options(-O0)  # Disable optimizations for debugging
+# endif()
 
 # Find pybind11
 execute_process(
