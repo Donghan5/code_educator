@@ -30,13 +30,19 @@ def ask(question, model, stream):
 
         if stream:
             # Streaming mode
+            response_received = False
             for chunk in api.generate(question, stream=True):
-                click.echo(chunk, nl=False)
+                if chunk:
+                    response_received = True
+                    click.echo(chunk, nl=False)
             click.echo()  # chenage line after streaming
         else:
             # Not Streaming mode
-            click.echo(api.generate(question, stream=False))
-
+            response = api.generate(question, stream=False)
+            if response:
+              click.echo(response)
+            else:
+               click.echo(click.style("No response generated.", fg='red'))
     except Exception as e:
         click.echo(click.style(f"오류: {str(e)}", fg='red'))
         sys.exit(1)

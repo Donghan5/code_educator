@@ -1,0 +1,10 @@
+setup.py
+code_educator.egg-info/PKG-INFO
+code_educator.egg-info/SOURCES.txt
+code_educator.egg-info/dependency_links.txt
+code_educator.egg-info/entry_points.txt
+code_educator.egg-info/requires.txt
+code_educator.egg-info/top_level.txt
+srcs/python/__init__.py
+srcs/python/api.py
+srcs/python/cli.py

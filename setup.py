@@ -64,7 +64,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
-# 버전 정보 가져오기
+# get information from __init__.py
 def get_version():
     with open('srcs/python/__init__.py', 'r') as f:
         for line in f:
@@ -81,8 +81,8 @@ setup(
     description="AI-powered programming learning assistant",
     long_description=open("README.md").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
-    packages=find_packages('srcs'),
-    package_dir={'': 'srcs'},
+    packages=['python'],
+    package_dir={'python': 'srcs/python'},
     ext_modules=[CMakeExtension('code_educator_core')],
     cmdclass=dict(build_ext=CMakeBuild),
     install_requires=[
@@ -91,7 +91,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'code-educator=srcs.python.cli:cli',
+            'code-educator=python.cli:cli',
         ],
     },
     classifiers=[

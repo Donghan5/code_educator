@@ -3,6 +3,7 @@
 """
 import os
 import time
+import json
 import requests
 from requests.exceptions import ConnectionError, Timeout, RequestException
 
@@ -35,7 +36,7 @@ class OllamaAPI:
 
     def _generate_sync(self, prompt, timeout):
         response = requests.post(
-            f"{self.base_url}/generate",
+            f"{self.base_url}/api/generate",
             json={"model": self.model, "prompt": prompt, "stream": False},
             timeout=timeout
         )
@@ -49,13 +50,15 @@ class OllamaAPI:
             raise ValueError(f"Invalid response format: {response.text}")
 
     def _generate_stream(self, prompt, timeout):
+        print(f"DEBUG API URL: {self.base_url}/api/generate")
         response = requests.post(
-            f"{self.base_url}/generate",
+            f"{self.base_url}/api/generate",
             json={"model": self.model, "prompt": prompt, "stream": True},
             timeout=timeout,
             stream=True
         )
 
+        print(f"DEBUG: response status code: {response.status_code}")
         if response.status_code != 200:
             raise ValueError(f"Error: {response.status_code} - {response.text}")
 
@@ -65,9 +68,16 @@ class OllamaAPI:
                     chunk = line.decode('utf-8')
                     if chunk.startswith("data: "):
                         data = chunk[6:]
-                    if data == "[DONE]":
-                        break
-                    yield data
+                        if data == "[DONE]":
+                          break
+                        try:
+                            json_data = json.loads(data)
+                            if "response" in json_data:
+                                text = json_data["response"]
+                                if text:
+                                    yield text
+                        except json.JSONDecodeError:
+                          yield data
                 except Exception as e:
                     raise ValueError(f"Error decoding response: {e}")
 

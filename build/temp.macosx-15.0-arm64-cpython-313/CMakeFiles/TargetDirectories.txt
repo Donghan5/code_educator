@@ -1,0 +1,7 @@
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/code_educator_core.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/edit_cache.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/rebuild_cache.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/list_install_components.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/install.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/install/local.dir
+/Users/donghank/Desktop/code_educator/build/temp.macosx-15.0-arm64-cpython-313/CMakeFiles/install/strip.dir
