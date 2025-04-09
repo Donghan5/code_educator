@@ -34,8 +34,14 @@ def ask(question, model, stream):
             for chunk in api.generate(question, stream=True):
                 if chunk:
                     response_received = True
-                    click.echo(chunk, nl=False)
-            click.echo()  # chenage line after streaming
+                    if chunk == '\n':
+                        click.echo('', nl=True)
+                    else:
+                        click.echo(chunk, nl=False)
+            if not response_received:
+                click.echo(click.style("No response generated.", fg='red'))
+            else:
+                click.echo()
         else:
             # Not Streaming mode
             response = api.generate(question, stream=False)
@@ -44,7 +50,7 @@ def ask(question, model, stream):
             else:
                click.echo(click.style("No response generated.", fg='red'))
     except Exception as e:
-        click.echo(click.style(f"오류: {str(e)}", fg='red'))
+        click.echo(click.style(f"error: {str(e)}", fg='red'))
         sys.exit(1)
 
 

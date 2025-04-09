@@ -25,6 +25,7 @@ An AI-powered CLI tool to assist with programming education, combining C++ perfo
 git clone https://github.com/yourusername/code-educator.git
 cd code-educator
 
+# ! Script not tested !
 # Start development environment
 ./scripts/dev.sh start
 
@@ -47,16 +48,30 @@ cd code-educator
 ollama pull codellama
 
 # Create and activate virtual environment
-python -m venv venv
+python3 -m venv venv
+
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install package
-pip install -e .
+pip install click requests # install required stuff
+
+pip install setuptools  # install setup tools for setup.py
+
 ```
 
 ## Usage
 
 ```bash
+# Don't forget to set env before launch
+export OLLAMA_API_URL="http://localhost:11434"
+
+source ~/.zshrc
+
+P# you can install easily using python
+sudo python3 setup.py install
+
+# Don't forget to serve ollama before using command
+ollama serve
+
 # Ask a programming question
 code-educator ask "How do I implement a recursive Fibonacci sequence in Python?"
 
@@ -91,7 +106,7 @@ code-educator/
 
 ## Development
 
-### Setting Up Development Environment
+### Setting Up Development Environment (Not tested)
 
 ```bash
 # Start development environment
@@ -103,14 +118,6 @@ code-educator/
 # Clean up development environment
 ./scripts/dev.sh cleanup
 ```
-
-### How to Contribute
-
-1. Fork this repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Create a Pull Request
 
 ## Performance Benefits
 
@@ -134,3 +141,4 @@ Distributed under the MIT License.
 ---
 
 **Note**: This project is under active development, and features may not be complete.
+		  Docker and Docker-compose still testing.

@@ -1,2 +1,0 @@
-code_educator_core
-python

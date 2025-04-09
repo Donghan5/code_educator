@@ -1,2 +1,0 @@
-[console_scripts]
-code-educator = python.cli:cli

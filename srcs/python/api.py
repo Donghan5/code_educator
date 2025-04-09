@@ -1,6 +1,3 @@
-"""
-	Ollama APT transport module for Python-APT
-"""
 import os
 import time
 import json
@@ -26,7 +23,7 @@ class OllamaAPI:
                 if stream:
                     return self._generate_stream(prompt, timeout)
                 else:
-                    return self._generate(prompt, timeout)
+                    return self._generate_sync(prompt, timeout)
             except (ConnectionError, Timeout) as e:
                 if attempt == max_retries - 1:
                     raise ConnectionError(f"Failed to connect to Ollama API after {max_retries} attempts.")
@@ -50,7 +47,6 @@ class OllamaAPI:
             raise ValueError(f"Invalid response format: {response.text}")
 
     def _generate_stream(self, prompt, timeout):
-        print(f"DEBUG API URL: {self.base_url}/api/generate")
         response = requests.post(
             f"{self.base_url}/api/generate",
             json={"model": self.model, "prompt": prompt, "stream": True},
@@ -58,28 +54,31 @@ class OllamaAPI:
             stream=True
         )
 
-        print(f"DEBUG: response status code: {response.status_code}")
         if response.status_code != 200:
             raise ValueError(f"Error: {response.status_code} - {response.text}")
 
-        for line in response.iter_lines():
-            if line:
-                try:
+        with open('debug_response.txt', 'w') as f:
+            for i, line in enumerate(response.iter_lines()):
+                if line:
                     chunk = line.decode('utf-8')
-                    if chunk.startswith("data: "):
-                        data = chunk[6:]
-                        if data == "[DONE]":
-                          break
-                        try:
-                            json_data = json.loads(data)
-                            if "response" in json_data:
-                                text = json_data["response"]
-                                if text:
-                                    yield text
-                        except json.JSONDecodeError:
-                          yield data
-                except Exception as e:
-                    raise ValueError(f"Error decoding response: {e}")
+                    f.write(f"Line {i}: {chunk}\n")
+                    try:
+                        json_data = json.loads(chunk)
+                        if 'response' in json_data:
+                            text = json_data['response']
+                            if text:
+                                yield text
+                    except json.JSONDecodeError:
+                        # Handle invalid JSON format
+                        if chunk.startswith("data: "):
+                            data = chunk[6:]
+                            if data == "[DONE]":
+                                break
+                            yield data
+                        else:
+                            yield chunk
+                    except Exception as e:
+                        pass  # ignore any other exceptions
 
     def list_models(self):
         """
