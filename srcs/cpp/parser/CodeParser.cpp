@@ -38,8 +38,14 @@ std::string CodeParser::detectLanguage(const std::string& code) {
         return "javascript";
     }
 
-    // 기본값
-    return "unknown";
+	// C characteristics check
+	if (code.find("int main") != std::string::npos ||
+		code.find("#include") != std::string::npos ||
+		code.find("printf") != std::string::npos) {
+		return "c";
+	}
+
+    return "unknown";  // default value
 }
 
 int CodeParser::calculateComplexity(const std::string& code, const std::string& language) {
@@ -66,6 +72,7 @@ int CodeParser::calculateComplexity(const std::string& code, const std::string& 
 
     std::regex_iterator<std::string::const_iterator> end;
 
+	// calculate complexity based on control structures
     complexity += std::distance(if_it, end) * 1;
     complexity += std::distance(for_it, end) * 2;
     complexity += std::distance(while_it, end) * 2;
@@ -136,6 +143,18 @@ std::vector<std::string> CodeParser::extractImports(const std::string& code, con
             imports.push_back(match.str());
         }
     }
+	else if (language == "c") {
+		// C include
+		std::regex include_regex("#include\\s*[<\"]([\\w\\./]+)[>\"]");
+		std::string::const_iterator searchStart(code.cbegin());
+		std::string::const_iterator searchEnd(code.cend());
+		std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, include_regex);
+		std::sregex_iterator words_end = std::sregex_iterator();
+		for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+			std::smatch match = *i;
+			imports.push_back(match.str());
+		}
+	}
 
     return imports;
 }
@@ -248,6 +267,21 @@ std::vector<std::string> CodeParser::extractClasses(const std::string& code, con
             }
         }
     }
+	else if (language == "c") {
+		// C struct definition search
+		std::regex struct_regex("struct\\s+(\\w+)");
+		std::string::const_iterator searchStart(code.cbegin());
+		std::string::const_iterator searchEnd(code.cend());
+		std::sregex_iterator words_begin = std::sregex_iterator(searchStart, searchEnd, struct_regex);
+		std::sregex_iterator words_end = std::sregex_iterator();
+
+		for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+			std::smatch match = *i;
+			if (match.size() > 1) {
+				classes.push_back(match[1].str());
+			}
+		}
+	}
 
     return classes;
 }
@@ -283,6 +317,18 @@ CodeStructure CodeParser::parseJavaScript(const std::string& code) {
     structure.complexity = calculateComplexity(code, "javascript");
 
     return structure;
+}
+
+// C parse
+CodeStructure CodeParser::parseC(const std::string &code) {
+	CodeStructure structure;
+	structure.language = "c";
+	structure.imports = extractImports(code, "c");
+	structure.functions = extractFunctions(code, "c");
+	structure.classes = extractClasses(code, "c");
+	structure.complexity = calculateComplexity(code, "c");
+
+	return structure;
 }
 
 CodeStructure CodeParser::parse(const std::string& code) {

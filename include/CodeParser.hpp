@@ -45,6 +45,8 @@ private:
     CodeStructure parseCpp(const std::string& code);
 
     CodeStructure parseJavaScript(const std::string& code);
+
+	CodeStructure parseC(const std::string &code);
 };
 
 }  // namespace code_educator
