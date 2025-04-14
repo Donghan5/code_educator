@@ -1,3 +1,0 @@
-[console_scripts]
-code-educator = srcs.python.cli:cli
-

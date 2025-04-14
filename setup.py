@@ -81,8 +81,8 @@ setup(
     description="AI-powered programming learning assistant",
     long_description=open("README.md").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
-    packages=['python'],
-    package_dir={'python': 'srcs/python'},
+    packages=['code_educator'],
+    package_dir={'code_educator': 'srcs/python'},
     ext_modules=[CMakeExtension('code_educator_core')],
     cmdclass=dict(build_ext=CMakeBuild),
     install_requires=[
@@ -91,7 +91,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'code-educator=python.cli:cli',
+            'code-educator=code_educator.cli:cli',
         ],
     },
     classifiers=[

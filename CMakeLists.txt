@@ -39,6 +39,12 @@ else()
     message(FATAL_ERROR "Parser source file not found. Please check your directory structure.")
 endif()
 
+# Code analyzer files - check both naming conventions
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/srcs/cpp/parser/Analyzer.cpp")
+	list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/srcs/cpp/parser/Analyzer.cpp")
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/srcs/cpp/analyzer)
+endif()
+
 # Bindings files - check both naming conventions
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/srcs/cpp/bindings/bindings.cpp")
     list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/srcs/cpp/bindings/bindings.cpp")
