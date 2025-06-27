@@ -1,11 +1,14 @@
+# docker-compose.yaml
 version: '3'
 
 services:
+  # 백엔드 API 서버
   code_educator:
-    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
     volumes:
       - .:/app
     depends_on:
@@ -13,11 +16,14 @@ services:
     environment:
       - OLLAMA_API_BASE=http://ollama:11434
       - DEV_MODE=docker
+      - PYTHONPATH=/app
+    command: python3 -m uvicorn srcs.python.server:app --host 0.0.0.0 --port 8000 --reload
     tty: true
     stdin_open: true
     networks:
       - code_educator_network
 
+  # Ollama LLM 서버
   ollama:
     image: ollama/ollama:latest
     volumes:
@@ -34,4 +40,3 @@ networks:
 volumes:
   ollama_data:
     driver: local
-  # Ollama data volume to persist model data

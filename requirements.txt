@@ -1,0 +1,23 @@
+# Core dependencies
+click>=7.0
+requests>=2.25.0
+
+# Web API dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+
+# Build dependencies
+pybind11>=2.10.0
+setuptools>=60.0.0
+wheel>=0.37.0
+
+# Development dependencies (optional)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0  # for testing FastAPI
+
+# Optional: for better development experience
+python-dotenv>=1.0.0  # for environment variables
+rich>=13.0.0  # for better CLI output

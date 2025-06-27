@@ -1,6 +1,5 @@
-FROM --platform=linux/arm64 ubuntu:22.04
+FROM ubuntu:22.04
 
-# First install all system packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -12,14 +11,9 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Then install Python packages in a separate RUN command
-RUN pip3 install --no-cache-dir \
-    pybind11 \
-    pytest \
-    click \
-    requests \
-    setuptools \
-    wheel
+# Copy requirements and install Python packages
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /app
 
