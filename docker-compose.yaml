@@ -1,37 +1,85 @@
-# docker-compose.yaml
-version: '3'
+version: '3.8'
 
 services:
+  # Ollama LLM 서버
+  ollama:
+    image: ollama/ollama:latest
+    container_name: code_educator_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - code_educator_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
   # 백엔드 API 서버
-  code_educator:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: code_educator_backend
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./srcs:/app/srcs
+      - ./test:/app/test
     depends_on:
       - ollama
     environment:
       - OLLAMA_API_BASE=http://ollama:11434
       - DEV_MODE=docker
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/srcs/python
+      - PYTHONUNBUFFERED=1
+    networks:
+      - code_educator_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
     command: python3 -m uvicorn srcs.python.server:app --host 0.0.0.0 --port 8000 --reload
-    tty: true
-    stdin_open: true
-    networks:
-      - code_educator_network
 
-  # Ollama LLM 서버
-  ollama:
-    image: ollama/ollama:latest
-    volumes:
-      - ollama_data:/root/.ollama
+  # Nginx 웹서버 (프론트엔드)
+  nginx:
+    image: nginx:alpine
+    container_name: code_educator_nginx
     ports:
-      - "11434:11434"  # Ollama API port
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
     networks:
       - code_educator_network
+    restart: unless-stopped
+
+  # 모델 다운로드 서비스 (일회성)
+  model_downloader:
+    image: ollama/ollama:latest
+    container_name: code_educator_model_downloader
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - code_educator_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "echo 'Waiting for Ollama to be ready...' && \
+      sleep 10 && \
+      echo 'Downloading CodeLlama model...' && \
+      ollama pull codellama && \
+      echo 'Model download complete!'"
+    restart: "no"
 
 networks:
   code_educator_network:

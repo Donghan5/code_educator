@@ -1,0 +1,9 @@
+venv
+tools/.env
+debug_response.txt
+.vscode
+.DS_Store
+build
+code_educator.egg-info
+dist
+/srcs/code_educator.egg-info
