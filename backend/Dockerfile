@@ -29,7 +29,6 @@ RUN mkdir -p build && \
 RUN pip3 install -e .
 
 ENV OLLAMA_API_BASE=http://ollama:11434
-ENV PYTHONPATH=/app
 
 EXPOSE 8000
 
