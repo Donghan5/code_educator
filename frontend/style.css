@@ -325,6 +325,41 @@
     margin-bottom: var(--spacing-sm);
     color: var(--text-secondary);
   }
+
+  .info-box {
+    background-color: #040404;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid #040404;
+  }
+
+  .info-note {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: var(--spacing-sm);
+  }
+  
+  .language-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .language-item {
+    display: flex;
+    align-items: center;
+    background-color: #040404;
+    border: 1px solid #040404;
+    border-radius: 6px;
+    padding: 6px 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    font-size: 1em;
+  }
+  
+  .language-item span {
+    margin-left: 6px;
+  }
   
   /* ===================== Action Bar ===================== */
   .action-bar {

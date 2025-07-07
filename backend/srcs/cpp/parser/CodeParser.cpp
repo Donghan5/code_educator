@@ -23,6 +23,13 @@ std::string CodeParser::detectLanguage(const std::string& code) {
         return "python";
     }
 
+    // C characteristics check
+    if (code.find("int main") != std::string::npos ||
+		code.find("#include <stdio.h>") != std::string::npos ||
+		code.find("printf") != std::string::npos) {
+		return "c";
+	}
+
     // C++ characteristics check
     if (code.find("#include") != std::string::npos ||
         code.find("int main") != std::string::npos ||
@@ -37,13 +44,6 @@ std::string CodeParser::detectLanguage(const std::string& code) {
         code.find("=>") != std::string::npos) {
         return "javascript";
     }
-
-	// C characteristics check
-	if (code.find("int main") != std::string::npos ||
-		code.find("#include") != std::string::npos ||
-		code.find("printf") != std::string::npos) {
-		return "c";
-	}
 
     return "unknown";  // default value
 }

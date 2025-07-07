@@ -100,3 +100,5 @@ PYBIND11_MODULE(code_educator_core, m) {
 
     m.def("version", []() { return "0.1.0"; }, "Return the version of code_educator_core");
 }
+
+export PYTHONPATH="$PYTHONPATH:$(pwd)/build"

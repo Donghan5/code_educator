@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# 색상 정의
+# ───────────────────────── 색상 ──────────────────────────
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -8,73 +8,90 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}🚀 Code Educator 빠른 시작${NC}"
-echo "=========================="
+echo "==============================================="
 
-# 1. Docker 확인
-if ! command -v docker &> /dev/null; then
-    echo -e "${RED}❌ Docker가 설치되어 있지 않습니다.${NC}"
-    echo "Docker를 먼저 설치해주세요: https://docs.docker.com/get-docker/"
+# ───────────────────── 전제 조건 체크 ────────────────────
+need_cmd () {
+  command -v "$1" &>/dev/null || {
+    echo -e "${RED}❌ '$1' 없어서 진행 불가${NC}"
     exit 1
-fi
+  }
+}
 
-# 2. Docker Compose 확인
-if ! command -v docker-compose &> /dev/null; then
-    echo -e "${YELLOW}⚠️  docker-compose가 없습니다. docker compose를 사용합니다.${NC}"
-    DOCKER_COMPOSE="docker compose"
+need_cmd docker
+need_cmd python3
+need_cmd g++
+need_cmd cmake
+need_cmd make
+
+# ───────────────────── C++ 코어 모듈 빌드 ────────────────
+echo -e "${BLUE}🔨 C++ 코어 모듈 빌드 중...${NC}"
+
+EXT_SUFFIX=$(python3 - <<'PY'
+import sysconfig, pathlib, sys
+print(sysconfig.get_config_var("EXT_SUFFIX") or ".so")
+PY
+)
+
+OUT_DIR="build"
+OUT_FILE="${OUT_DIR}/code_educator_core${EXT_SUFFIX}"
+
+if [[ -f "$OUT_FILE" ]]; then
+  echo -e "${GREEN}✅ 이미 빌드됨 → ${OUT_FILE}${NC}"
 else
-    DOCKER_COMPOSE="docker-compose"
+  mkdir -p "$OUT_DIR"                       || { echo -e "${RED}mkdir 실패${NC}"; exit 1; }
+  pushd "$OUT_DIR" >/dev/null               || exit 1
+  cmake -S .. -B .                                  || { echo -e "${RED}cmake 실패${NC}"; exit 1; }
+  make -j"$(nproc)"                          || { echo -e "${RED}make 실패${NC}"; exit 1; }
+  popd >/dev/null
+  echo -e "${GREEN}✅ 빌드 완료 → ${OUT_FILE}${NC}"
 fi
 
-# 3. 기존 컨테이너 정리
-echo -e "${YELLOW}🧹 기존 컨테이너 정리 중...${NC}"
-$DOCKER_COMPOSE down 2>/dev/null
+# ───────────────────── Docker Compose 준비 ───────────────
+if command -v docker-compose &>/dev/null; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  DOCKER_COMPOSE="docker compose"
+  echo -e "${YELLOW}⚠️  docker-compose 명령이 없어서 'docker compose'로 대체${NC}"
+fi
 
-# 4. 서비스 시작
-echo -e "${GREEN}🔧 서비스 시작 중...${NC}"
+echo -e "${YELLOW}🧹 기존 컨테이너 정리 중...${NC}"
+$DOCKER_COMPOSE down &>/dev/null
+
+echo -e "${GREEN}🔧 Docker 서비스 시작 중...${NC}"
 $DOCKER_COMPOSE up -d
 
-# 5. 대기
-echo -e "${BLUE}⏳ 서비스가 준비될 때까지 대기 중...${NC}"
-sleep 10
+# ───────────────────── 서비스 헬스체크 ───────────────────
+echo -e "${BLUE}⏳ 서비스 준비 대기 (최대 10초)...${NC}"
+for i in {1..10}; do
+  curl -s http://localhost:8000/health &>/dev/null && break
+  sleep 1
+done
 
-# 6. 모델 다운로드 확인
-echo -e "${BLUE}📥 CodeLlama 모델 다운로드 중...${NC}"
-docker exec code_educator_ollama ollama pull codellama &
+echo "-----------------------------------------------"
+[[ $(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health) == "200" ]] \
+  && echo -e "${GREEN}✅ FastAPI 서버 OK → http://localhost:8000${NC}" \
+  || echo -e "${RED}❌ FastAPI 서버 응답 없음${NC}"
 
-# 7. 상태 확인
-echo -e "${GREEN}📊 서비스 상태 확인${NC}"
-echo "=========================="
+[[ $(curl -s -o /dev/null -w '%{http_code}' http://localhost) == "200" ]] \
+  && echo -e "${GREEN}✅ 프론트엔드 OK → http://localhost${NC}" \
+  || echo -e "${YELLOW}⚠️  프론트엔드 준비 중${NC}"
 
-# API 헬스체크
-if curl -s http://localhost:8000/health > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ FastAPI 서버: http://localhost:8000${NC}"
-    echo -e "${GREEN}✅ API 문서: http://localhost:8000/docs${NC}"
-else
-    echo -e "${RED}❌ FastAPI 서버가 응답하지 않습니다${NC}"
-fi
+[[ $(curl -s http://localhost:11434/api/tags &>/dev/null; echo $? ) == 0 ]] \
+  && echo -e "${GREEN}✅ Ollama API OK → http://localhost:11434${NC}" \
+  || echo -e "${YELLOW}⚠️  Ollama 준비 중${NC}"
+echo "-----------------------------------------------"
 
-# Ollama 체크
-if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Ollama API: http://localhost:11434${NC}"
-else
-    echo -e "${YELLOW}⚠️  Ollama가 아직 준비 중입니다${NC}"
-fi
+# ───────────────────── 모델 다운로드 백그라운드 ───────────
+echo -e "${BLUE}📥 CodeLlama 모델(Pull) 시작...${NC}"
+docker exec code_educator_ollama ollama pull codellama &>/dev/null &
 
-# 프론트엔드 체크
-if curl -s http://localhost > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ 프론트엔드: http://localhost${NC}"
-else
-    echo -e "${YELLOW}⚠️  프론트엔드가 아직 준비 중입니다${NC}"
-fi
-
+echo -e "${GREEN}🎉 서버가 실행 중이야!${NC}"
 echo ""
-echo -e "${GREEN}🎉 서버가 실행 중입니다!${NC}"
+echo "📝 사용 팁"
+echo "  • API Docs  : http://localhost:8000/docs"
+echo "  • Frontend  : http://localhost"
+echo "  • 로그 보기: $DOCKER_COMPOSE logs -f"
+echo "  • 중지     : $DOCKER_COMPOSE down"
 echo ""
-echo "📝 사용 방법:"
-echo "  - API 테스트: http://localhost:8000/docs"
-echo "  - 프론트엔드: http://localhost"
-echo "  - 로그 보기: $DOCKER_COMPOSE logs -f"
-echo "  - 중지하기: $DOCKER_COMPOSE down"
-echo ""
-echo -e "${YELLOW}💡 팁: 모델 다운로드는 백그라운드에서 진행됩니다${NC}"
-echo -e "${YELLOW}   첫 실행 시 5-10분 정도 걸릴 수 있습니다${NC}"
+echo -e "${YELLOW}💡 첫 실행은 모델 다운로드 때문에 몇 분 걸릴 수 있어${NC}"

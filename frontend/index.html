@@ -43,19 +43,18 @@
   <!-- Main Content -->
   <main class="main-container">
     <!-- Language Selector -->
-    <div class="language-selector">
-      <button class="lang-btn active" data-lang="python">
-        <i class="fab fa-python"></i> Python
-      </button>
-      <button class="lang-btn" data-lang="javascript">
-        <i class="fab fa-js"></i> JavaScript
-      </button>
-      <button class="lang-btn" data-lang="cpp">
-        <i class="fas fa-code"></i> C++
-      </button>
-      <button class="lang-btn" data-lang="java">
-        <i class="fab fa-java"></i> Java
-      </button>
+    <div class="language-information">
+      <div class="info-box">
+        <p class="info-title">💥 Supported Languages</p>
+        <div class="language-list">
+          <div class="language-item">🐍 <span>Python</span></div>
+          <div class="language-item">🟨 <span>JavaScript</span></div>
+          <div class="language-item">🌊 <span>C</span></div>
+          <div class="language-item">💻 <span>C++</span></div>
+          <div class="language-item">☕ <span>Java</span></div>
+        </div>
+        <p class="info-note">📍 Language is automatically detected! Enjoy!</p>
+      </div>
     </div>
 
     <!-- Workspace -->
@@ -169,7 +168,7 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Scripts -->
-  <script type="module" src="js/api-client.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="/public/js/api-client.js"></script>
+  <script type="module" src="/public/js/app.js"></script>
 </body>
 </html>
